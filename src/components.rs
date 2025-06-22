@@ -22,6 +22,9 @@ pub struct Player {}
 pub struct Monster {}
 
 #[derive(Component, Debug)]
+pub struct BlocksTile {}
+
+#[derive(Component, Debug)]
 pub struct Name {
     pub name : String
 }
