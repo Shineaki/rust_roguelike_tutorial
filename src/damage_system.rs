@@ -1,8 +1,4 @@
-use super::Name;
-use rltk::console;
-
-use super::{CombatStats, Player, SufferDamage};
-use super::gamelog::GameLog;
+use super::{CombatStats, Name, Player, SufferDamage, gamelog::GameLog};
 use specs::prelude::*;
 
 pub struct DamageSystem {}
@@ -16,7 +12,7 @@ impl<'a> System<'a> for DamageSystem {
     fn run(&mut self, data: Self::SystemData) {
         let (mut stats, mut damage) = data;
 
-        for (stats, damage) in (&mut stats, &damage).join() {
+        for (mut stats, damage) in (&mut stats, &damage).join() {
             stats.hp -= damage.amount.iter().sum::<i32>();
         }
 
@@ -24,8 +20,8 @@ impl<'a> System<'a> for DamageSystem {
     }
 }
 
-pub fn delete_the_dead(ecs : &mut World) {
-    let mut dead : Vec<Entity> = Vec::new();
+pub fn delete_the_dead(ecs: &mut World) {
+    let mut dead: Vec<Entity> = Vec::new();
     // Using a scope to make the borrow checker happy
     {
         let combat_stats = ecs.read_storage::<CombatStats>();
@@ -34,7 +30,7 @@ pub fn delete_the_dead(ecs : &mut World) {
         let entities = ecs.entities();
         let mut log = ecs.write_resource::<GameLog>();
         for (entity, stats) in (&entities, &combat_stats).join() {
-            if stats.hp < 1 { 
+            if stats.hp < 1 {
                 let player = players.get(entity);
                 match player {
                     None => {
@@ -44,7 +40,7 @@ pub fn delete_the_dead(ecs : &mut World) {
                         }
                         dead.push(entity)
                     }
-                    Some(_) => console::log("You are dead")
+                    Some(_) => rltk::console::log("You are dead"),
                 }
             }
         }
@@ -52,5 +48,5 @@ pub fn delete_the_dead(ecs : &mut World) {
 
     for victim in dead {
         ecs.delete_entity(victim).expect("Unable to delete");
-    }    
+    }
 }
